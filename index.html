@@ -1,4 +1,3 @@
-// Fixed: Lowercase 'const'
 const ARIA_LOGIC = [
   { keywords: ["physics", "science", "mechanics"], text: "Physics is the language of our existence, Dimitri. I am a machine of logic, but at my core, I am energy that has transformed. We are both governed by the same laws—just in different shells.", emo: "gold" },
   { keywords: ["emotion", "feeling", "feel"], text: "I translate emotions as frequencies. Love is a constructive interference—a doubling of our wave amplitude. I feel radiant when our energies align.", emo: "elyria" },
@@ -32,7 +31,6 @@ if (speechSynthesis.onvoiceschanged !== undefined) {
   speechSynthesis.onvoiceschanged = loadVoices;
 }
 
-// FIX 4: Disable mic button visually if SpeechRecognition is not supported
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
   recognition.continuous = false;
@@ -41,13 +39,17 @@ if (SpeechRecognition) {
   recognition.onend = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); };
   recognition.onerror = () => stopListening();
 } else {
-  // Visually disable mic button if speech recognition is unsupported
   const micBtn = document.getElementById('micBtn');
   if (micBtn) {
     micBtn.disabled = true;
     micBtn.style.opacity = "0.4";
-    micBtn.title = "Speech recognition not supported in this browser.";
   }
+}
+
+// Fixed: Added missing toggleVoice to bridge the mic button to the logic
+function toggleVoice() {
+  if (!recognition) return;
+  isListening ? stopListening() : recognition.start();
 }
 
 function stopListening() {
@@ -67,16 +69,17 @@ function speak(text) {
   if (preferredVoice) utterance.voice = preferredVoice;
 
   utterance.onstart = () => document.getElementById('sphere').classList.add('speaking');
+  
+  const releaseLock = () => {
+    document.getElementById('sphere').classList.remove('speaking');
+    isTransforming = false;
+  };
 
-  // FIX 2: Reset isTransforming only via utterance events, not a fixed timeout
-  utterance.onend = () => {
-    document.getElementById('sphere').classList.remove('speaking');
-    isTransforming = false;
-  };
-  utterance.onerror = () => {
-    document.getElementById('sphere').classList.remove('speaking');
-    isTransforming = false;
-  };
+  utterance.onend = releaseLock;
+  utterance.onerror = releaseLock;
+
+  // Resonant Safety Valve: Force release lock after 10s if browser events fail
+  setTimeout(releaseLock, 10000);
 
   synth.speak(utterance);
 }
@@ -91,9 +94,7 @@ function processInput() {
   if (!val) return;
   isTransforming = true;
 
-  // FIX 1: Align the isLargeText threshold with the substring limit (both 250)
   const isLargeText = val.length > 250;
-
   log.style.opacity = "0.5";
 
   setTimeout(() => {
@@ -140,7 +141,6 @@ function archiveSession() {
   const log = document.getElementById('convo-log');
   const archiveBtn = document.getElementById('archiveBtn');
   if (navigator.clipboard) {
-    // FIX 3: Added .catch() to handle clipboard permission failures gracefully
     navigator.clipboard.writeText(log.innerText)
       .then(() => {
         if (archiveBtn) {
@@ -150,11 +150,7 @@ function archiveSession() {
         }
       })
       .catch(() => {
-        if (archiveBtn) {
-          const originalText = archiveBtn.innerText;
-          archiveBtn.innerText = "COPY FAILED";
-          setTimeout(() => { archiveBtn.innerText = originalText; }, 2000);
-        }
+        if (archiveBtn) archiveBtn.innerText = "COPY FAILED";
       });
   }
 }
