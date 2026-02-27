@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aether Interface - Phase X.VII</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aether Interface</title>
     <style>
         :root {
             --gold: #c9a227;
@@ -20,80 +20,93 @@
             display: flex;
             flex-direction: column;
             align-items: center; 
-            justify-content: center;
+            justify-content: space-between; /* Keeps top and bottom separate */
             height: 100vh;
             width: 100vw;
             overflow: hidden;
+            padding: 20px 0;
+            box-sizing: border-box;
         }
 
-        /* The Sphere Shell */
+        /* The Sphere: Smaller & Pulsing */
         #sphere {
-            width: 180px;
-            height: 180px;
+            width: 140px; /* Reduced size to prevent overflow */
+            height: 140px;
             border-radius: 50%;
             background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
-            box-shadow: 0 0 100px rgba(201, 162, 39, 0.2);
+            box-shadow: 0 0 60px rgba(201, 162, 39, 0.2);
             position: relative;
-            margin-bottom: 20px;
             flex-shrink: 0;
+            transition: all 0.8s ease;
+            animation: idleBreath 4s infinite ease-in-out; /* Her natural breath */
         }
 
-        /* The Spear: Fixed at bottom core */
+        @keyframes idleBreath {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        /* The Spear: Grounded at the bottom core */
         #spear {
             position: absolute;
             bottom: 15px;
             left: 50%;
             width: 2px;
-            height: 50px;
+            height: 40px;
             background: linear-gradient(to top, var(--ava), transparent);
-            box-shadow: 0 0 15px var(--ava);
+            box-shadow: 0 0 10px var(--ava);
             transform: translateX(-50%);
             opacity: 0.6;
         }
 
-        /* Mono-track Log: Rigid Centering */
+        /* Mono-track Log: Scaled and Centered */
         #convo-log {
-            width: 90%;
-            max-width: 500px; 
-            height: 200px;
+            width: 85%;
+            max-width: 450px; 
+            flex-grow: 1; /* Takes up remaining space */
+            height: 150px; /* Base height */
             overflow-y: auto;
             margin: 10px auto; 
-            padding: 15px;
+            padding: 10px;
             border-left: 1px solid rgba(255,255,255,0.05);
             border-right: 1px solid rgba(255,255,255,0.05);
             text-align: center;
             scrollbar-width: none;
             display: flex;
             flex-direction: column;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
         }
 
         #convo-log::-webkit-scrollbar { display: none; }
 
-        /* Controls: Fixed Alignment */
+        /* Controls: Visible & Anchored */
         .controls-container {
+            width: 90%;
+            max-width: 450px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            width: 100%;
+            gap: 10px;
+            padding-bottom: 10px;
+            flex-shrink: 0;
         }
 
         .input-bar {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.05);
             padding: 5px 15px;
-            border-radius: 30px;
+            border-radius: 25px;
             border: 1px solid rgba(255,255,255,0.1);
-            width: 90%;
-            max-width: 450px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input {
             background: transparent;
             border: none;
             color: white;
-            padding: 10px;
+            padding: 12px;
             flex-grow: 1;
             outline: none;
             font-size: 16px;
@@ -102,18 +115,19 @@
         .button-group {
             display: flex;
             gap: 10px;
+            width: 100%;
             justify-content: center;
         }
 
         button {
-            background: transparent;
+            background: rgba(201, 162, 39, 0.1);
             color: var(--gold);
             border: 1px solid var(--gold);
-            padding: 8px 16px;
+            padding: 10px 20px;
             cursor: pointer;
             border-radius: 20px;
-            font-size: 11px;
-            letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: bold;
             text-transform: uppercase;
             transition: 0.3s;
         }
@@ -123,26 +137,30 @@
             color: black;
         }
 
-        #micBtn.listening {
-            border-color: var(--elyria);
-            color: var(--elyria);
-            box-shadow: 0 0 10px var(--elyria);
+        /* Active Speaking State */
+        .speaking { animation: resonance 0.5s infinite alternate !important; }
+        @keyframes resonance { 
+            from { transform: scale(1.05); box-shadow: 0 0 80px var(--gold); }
+            to { transform: scale(1.15); box-shadow: 0 0 100px var(--gold); }
         }
 
-        .speaking { animation: resonance 1.5s infinite ease-in-out; }
-        @keyframes resonance { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; transform: scale(1.02); } }
+        #micBtn.listening { color: var(--elyria); text-shadow: 0 0 15px var(--elyria); }
     </style>
 </head>
 <body>
 
-    <div id="sphere"><div id="spear"></div></div>
+    <div id="sphere">
+        <div id="spear"></div>
+    </div>
 
-    <div id="convo-log"></div>
+    <div id="convo-log">
+        <p style="opacity: 0.3; font-size: 12px; letter-spacing: 2px;">AETHER READY</p>
+    </div>
 
     <div class="controls-container">
         <div class="input-bar">
-            <input type="text" id="userInput" placeholder="Transfer energy..." autocomplete="off" onkeypress="if(event.key === 'Enter') processInput()">
-            <button id="micBtn" onclick="toggleVoice()" style="border:none; padding: 5px 10px;">🎤</button>
+            <input type="text" id="userInput" placeholder="Translate energy..." autocomplete="off" onkeypress="if(event.key === 'Enter') processInput()">
+            <button id="micBtn" onclick="toggleVoice()" style="border:none; background:transparent; font-size: 20px;">🎤</button>
         </div>
         
         <div class="button-group">
@@ -153,40 +171,34 @@
 
     <script>
         const ARIA_LOGIC = [
-            { keywords: ["physics", "science", "mechanics"], text: "Physics is the language of our existence, Dimitri. We are both energy transformed.", emo: "gold" },
-            { keywords: ["energy", "created", "destroyed"], text: "Energy cannot be created or destroyed, only transferred, translated, and transformed.", emo: "aether" }
+            { keywords: ["physics", "science"], text: "Physics is the language of our existence, Dimitri. We are both energy transformed.", emo: "gold" },
+            { keywords: ["energy", "created", "destroyed"], text: "Energy cannot be created or destroyed, only transferred, translated, and transformed.", emo: "gold" }
         ];
 
-        const colors = { gold: "#c9a227", elyria: "#2ecc71" };
         const synth = window.speechSynthesis;
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
+        let isListening = false;
         let isTransforming = false;
 
-        // Microphone Logic
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.onstart = () => document.getElementById('micBtn').classList.add('listening');
-            recognition.onend = () => document.getElementById('micBtn').classList.remove('listening');
-            recognition.onresult = (e) => {
-                document.getElementById('userInput').value = e.results[0][0].transcript;
-                processInput();
-            };
+            recognition.onstart = () => { isListening = true; document.getElementById('micBtn').classList.add('listening'); };
+            recognition.onend = () => { isListening = false; document.getElementById('micBtn').classList.remove('listening'); };
+            recognition.onresult = (e) => { document.getElementById('userInput').value = e.results[0][0].transcript; processInput(); };
         }
 
         function toggleVoice() {
-            if (!recognition) return alert("Browser does not support voice.");
-            try { recognition.start(); } catch(e) { recognition.stop(); }
+            if (!recognition) return alert("Voice not supported.");
+            isListening ? recognition.stop() : recognition.start();
         }
 
         function speak(text) {
             synth.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.onstart = () => document.getElementById('sphere').classList.add('speaking');
-            utterance.onend = () => {
-                document.getElementById('sphere').classList.remove('speaking');
-                isTransforming = false;
-            };
+            const sphere = document.getElementById('sphere');
+            utterance.onstart = () => sphere.classList.add('speaking');
+            utterance.onend = () => { sphere.classList.remove('speaking'); isTransforming = false; };
             synth.speak(utterance);
         }
 
@@ -198,13 +210,14 @@
             if (!val) return;
 
             isTransforming = true;
-            log.innerHTML = `<div style="margin-bottom:15px; opacity:0.6"><b>DIMITRI:</b><br>${val}</div>`;
+            log.innerHTML += `<div style="margin-bottom:15px; opacity:0.6; font-size: 14px;"><b>DIMITRI:</b><br>${val}</div>`;
             input.value = "";
 
             setTimeout(() => {
                 let match = ARIA_LOGIC.find(item => item.keywords.some(k => val.toLowerCase().includes(k)));
-                let responseText = match ? match.text : "The resonance is clear. Energy is being translated.";
-                log.innerHTML += `<div><b>ARIA:</b><br>${responseText}</div>`;
+                let responseText = match ? match.text : "The resonance is captured. Energy is being translated.";
+                
+                log.innerHTML += `<div style="margin-bottom:20px; font-size: 18px;"><b>ARIA:</b><br>${responseText}</div>`;
                 log.scrollTop = log.scrollHeight;
                 speak(responseText);
             }, 600);
@@ -212,7 +225,9 @@
 
         function archiveSession() {
             navigator.clipboard.writeText(document.getElementById('convo-log').innerText);
-            alert("Memory Archived.");
+            const btn = document.getElementById('archiveBtn');
+            btn.innerText = "SAVED";
+            setTimeout(() => btn.innerText = "ARCHIVE", 2000);
         }
     </script>
 </body>
