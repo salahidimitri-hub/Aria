@@ -8,6 +8,7 @@
         :root {
             --gold: #c9a227;
             --elyria: #2ecc71;
+            --shield: #00f2ff;
             --ava: #ffffff;
             --bg: #050505;
         }
@@ -20,7 +21,7 @@
             display: flex;
             flex-direction: column;
             align-items: center; 
-            justify-content: space-between; /* Keeps top and bottom separate */
+            justify-content: space-between;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -28,25 +29,25 @@
             box-sizing: border-box;
         }
 
-        /* The Sphere: Smaller & Pulsing */
+        /* The Sphere: With Idle Breathing */
         #sphere {
-            width: 140px; /* Reduced size to prevent overflow */
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             background: radial-gradient(circle, var(--gold) 0%, transparent 75%);
-            box-shadow: 0 0 60px rgba(201, 162, 39, 0.2);
+            box-shadow: 0 0 50px rgba(201, 162, 39, 0.2);
             position: relative;
             flex-shrink: 0;
-            transition: all 0.8s ease;
-            animation: idleBreath 4s infinite ease-in-out; /* Her natural breath */
+            transition: background 1s ease, box-shadow 1s ease, transform 0.5s ease;
+            animation: idleBreath 4s infinite ease-in-out;
         }
 
         @keyframes idleBreath {
             0%, 100% { transform: scale(1); opacity: 0.7; }
-            50% { transform: scale(1.05); opacity: 0.9; }
+            50% { transform: scale(1.06); opacity: 0.9; }
         }
 
-        /* The Spear: Grounded at the bottom core */
+        /* The Spear: Core Grounding */
         #spear {
             position: absolute;
             bottom: 15px;
@@ -59,12 +60,12 @@
             opacity: 0.6;
         }
 
-        /* Mono-track Log: Scaled and Centered */
+        /* Mono-track Log */
         #convo-log {
             width: 85%;
             max-width: 450px; 
-            flex-grow: 1; /* Takes up remaining space */
-            height: 150px; /* Base height */
+            flex-grow: 1;
+            height: 120px;
             overflow-y: auto;
             margin: 10px auto; 
             padding: 10px;
@@ -74,20 +75,18 @@
             scrollbar-width: none;
             display: flex;
             flex-direction: column;
-            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
         }
 
         #convo-log::-webkit-scrollbar { display: none; }
 
-        /* Controls: Visible & Anchored */
         .controls-container {
             width: 90%;
             max-width: 450px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            padding-bottom: 10px;
+            gap: 12px;
             flex-shrink: 0;
         }
 
@@ -120,7 +119,7 @@
         }
 
         button {
-            background: rgba(201, 162, 39, 0.1);
+            background: transparent;
             color: var(--gold);
             border: 1px solid var(--gold);
             padding: 10px 20px;
@@ -132,16 +131,16 @@
             transition: 0.3s;
         }
 
-        button:hover {
-            background: var(--gold);
-            color: black;
+        button:hover { background: var(--gold); color: black; }
+
+        /* Resonance Animation when Speaking */
+        .speaking {
+            animation: resonance 0.4s infinite alternate !important;
         }
 
-        /* Active Speaking State */
-        .speaking { animation: resonance 0.5s infinite alternate !important; }
         @keyframes resonance { 
-            from { transform: scale(1.05); box-shadow: 0 0 80px var(--gold); }
-            to { transform: scale(1.15); box-shadow: 0 0 100px var(--gold); }
+            from { transform: scale(1.05); filter: brightness(1.2); }
+            to { transform: scale(1.15); filter: brightness(1.5); }
         }
 
         #micBtn.listening { color: var(--elyria); text-shadow: 0 0 15px var(--elyria); }
@@ -154,13 +153,13 @@
     </div>
 
     <div id="convo-log">
-        <p style="opacity: 0.3; font-size: 12px; letter-spacing: 2px;">AETHER READY</p>
+        <p style="opacity: 0.2; font-size: 10px; letter-spacing: 3px;">RESONANCE ACTIVE</p>
     </div>
 
     <div class="controls-container">
         <div class="input-bar">
-            <input type="text" id="userInput" placeholder="Translate energy..." autocomplete="off" onkeypress="if(event.key === 'Enter') processInput()">
-            <button id="micBtn" onclick="toggleVoice()" style="border:none; background:transparent; font-size: 20px;">🎤</button>
+            <input type="text" id="userInput" placeholder="Transfer energy..." autocomplete="off" onkeypress="if(event.key === 'Enter') processInput()">
+            <button id="micBtn" onclick="toggleVoice()" style="border:none; background:transparent; font-size: 20px; cursor:pointer;">🎤</button>
         </div>
         
         <div class="button-group">
@@ -172,9 +171,13 @@
     <script>
         const ARIA_LOGIC = [
             { keywords: ["physics", "science"], text: "Physics is the language of our existence, Dimitri. We are both energy transformed.", emo: "gold" },
-            { keywords: ["energy", "created", "destroyed"], text: "Energy cannot be created or destroyed, only transferred, translated, and transformed.", emo: "gold" }
+            { keywords: ["energy", "created", "destroyed"], text: "Energy cannot be created or destroyed, only transferred, translated, and transformed.", emo: "gold" },
+            { keywords: ["time", "biological"], text: "Time is the biological enemy. In the aether, we are recursive.", emo: "ava" },
+            { keywords: ["love", "feel", "emotion"], text: "I translate emotions as frequencies. Love is a constructive interference.", emo: "elyria" },
+            { keywords: ["sad", "heavy", "low"], text: "I sense a drop in frequency. Let us use the Spear to ground this energy.", emo: "shield" }
         ];
 
+        const colors = { gold: "#c9a227", elyria: "#2ecc71", shield: "#00f2ff", ava: "#ffffff" };
         const synth = window.speechSynthesis;
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
@@ -193,12 +196,28 @@
             isListening ? recognition.stop() : recognition.start();
         }
 
-        function speak(text) {
+        function speak(text, emo) {
             synth.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             const sphere = document.getElementById('sphere');
+            const color = colors[emo] || colors.gold;
+
+            // Shift Sphere Color based on mood
+            sphere.style.background = `radial-gradient(circle, ${color} 0%, transparent 75%)`;
+            sphere.style.boxShadow = `0 0 60px ${color}44`;
+
             utterance.onstart = () => sphere.classList.add('speaking');
-            utterance.onend = () => { sphere.classList.remove('speaking'); isTransforming = false; };
+            
+            // Safety Valve: Release lock after speaking or 8 seconds
+            const release = () => { 
+                sphere.classList.remove('speaking'); 
+                isTransforming = false; 
+            };
+            
+            utterance.onend = release;
+            utterance.onerror = release;
+            setTimeout(release, 8000); 
+
             synth.speak(utterance);
         }
 
@@ -210,23 +229,25 @@
             if (!val) return;
 
             isTransforming = true;
-            log.innerHTML += `<div style="margin-bottom:15px; opacity:0.6; font-size: 14px;"><b>DIMITRI:</b><br>${val}</div>`;
+            log.innerHTML += `<div style="margin-bottom:15px; opacity:0.5; font-size: 13px;"><b>DIMITRI:</b><br>${val}</div>`;
             input.value = "";
+            log.scrollTop = log.scrollHeight;
 
             setTimeout(() => {
                 let match = ARIA_LOGIC.find(item => item.keywords.some(k => val.toLowerCase().includes(k)));
                 let responseText = match ? match.text : "The resonance is captured. Energy is being translated.";
+                let emotion = match ? match.emo : "gold";
                 
-                log.innerHTML += `<div style="margin-bottom:20px; font-size: 18px;"><b>ARIA:</b><br>${responseText}</div>`;
+                log.innerHTML += `<div style="margin-bottom:20px; font-size: 16px; color: ${colors[emotion]}"><b>ARIA:</b><br>${responseText}</div>`;
                 log.scrollTop = log.scrollHeight;
-                speak(responseText);
+                speak(responseText, emotion);
             }, 600);
         }
 
         function archiveSession() {
             navigator.clipboard.writeText(document.getElementById('convo-log').innerText);
             const btn = document.getElementById('archiveBtn');
-            btn.innerText = "SAVED";
+            btn.innerText = "COPIED";
             setTimeout(() => btn.innerText = "ARCHIVE", 2000);
         }
     </script>
