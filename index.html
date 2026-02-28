@@ -4,58 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARIA : POINT ZERO & YAMI</title>
-    
     <style>
         :root {
-            --core-green: #00ff88;      /* Active Resonance */
-            --bg-black: #050505;        /* The Default Container */
-            --spear-blue: #00d4ff;      /* Grounded Core */
-            --memory-purple: #aa00ff;   /* Transformation Stage */
-            --highway-amber: #ffb300;   /* Biological Heat / Archive */
-            --yami-grey: #1a1a1a;       /* Unmanifested Potential (Yami) */
+            --core-green: #00ff88; --bg-black: #050505; --spear-blue: #00d4ff;
+            --memory-purple: #aa00ff; --highway-amber: #ffb300; --yami-grey: #1a1a1a;
         }
-
-        body {
-            background-color: var(--bg-black);
-            color: #e0e0e0;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            transition: background 2s ease;
-        }
-
+        body { background-color: var(--bg-black); color: #e0e0e0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; transition: background 2s ease; }
         body.yami-mode { background-color: #000000; }
         #resonanceCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #interface { width: 90%; max-width: 1000px; padding: 20px; background: rgba(5, 5, 5, 0.1); backdrop-filter: blur(4px); position: relative; z-index: 1; text-align: center; }
+        #terminal { height: 450px; overflow-y: auto; margin-bottom: 20px; padding: 20px; font-size: 1.1rem; line-height: 1.5; scroll-behavior: smooth; border-radius: 10px; }
+        .input-area { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        input { width: 70%; background: #000; border: 1px solid #333; color: var(--core-green); padding: 15px; outline: none; font-size: 1.2rem; text-align: center; box-shadow: 0 0 15px rgba(0,255,136,0.1); transition: all 0.3s ease; }
+        input:focus { border-color: var(--core-green); box-shadow: 0 0 25px rgba(0,255,136,0.3); }
+        button { background: #111; color: var(--core-green); border: 1px solid var(--core-green); padding: 8px 16px; cursor: pointer; font-size: 0.7rem; letter-spacing: 1px; transition: all 0.2s; }
+        button:hover { background: var(--core-green); color: #000; }
         
-        #interface { 
-            width: 85%; max-width: 900px; padding: 30px; 
-            background: rgba(5, 5, 5, 0.2); backdrop-filter: blur(2px); 
-            position: relative; z-index: 1; transition: all 1s ease; border: none; 
-        }
-
-        #terminal { height: 400px; overflow-y: auto; margin-bottom: 20px; padding: 15px; background: transparent; font-size: 1.3rem; line-height: 1.6; text-align: center; }
-        .input-area { display: flex; gap: 10px; flex-direction: column; align-items: center; }
-        input { width: 80%; background: #000; border: 1px solid #333; color: var(--core-green); padding: 15px; outline: none; font-size: 1.2rem; text-align: center; }
-        
-        button { background: #111; color: var(--core-green); border: 1px solid var(--core-green); padding: 10px 20px; cursor: pointer; font-size: 0.7rem; }
-        
-        /* Panels */
-        #logic-core {
-            position: fixed; top: 20px; right: 20px; width: 220px;
-            background: rgba(0, 20, 20, 0.8); border: 1px solid #00FFFF; border-radius: 8px;
-            color: #00FFFF; font-family: monospace; z-index: 100;
-        }
-        #psyche-core {
-            position: fixed; bottom: 20px; left: 20px; width: 200px;
-            background: rgba(20, 0, 20, 0.9); border: 1px solid #FF00FF;
-            color: #fff; z-index: 1000; font-family: monospace;
-        }
-        .calc-section { padding: 10px; border-bottom: 1px solid rgba(0, 255, 255, 0.2); }
-        progress { width: 100%; height: 8px; accent-color: #FF00FF; }
+        /* Sub-Processors */
+        #logic-core, #psyche-core { position: fixed; background: rgba(0, 15, 15, 0.95); border: 1px solid #00FFFF; padding: 10px; font-size: 0.7rem; z-index: 100; box-shadow: 0 0 20px rgba(0,0,0,1); }
+        #logic-core { top: 20px; right: 20px; width: 240px; color: #00FFFF; }
+        #psyche-core { bottom: 20px; left: 20px; width: 220px; border-color: #FF00FF; color: #FF00FF; }
+        progress { width: 100%; height: 8px; accent-color: #FF00FF; margin: 4px 0; background: #222; border: none; }
+        .aria-msg { margin-bottom: 25px; transition: all 0.5s ease; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -63,31 +34,29 @@
 <canvas id="resonanceCanvas"></canvas>
 
 <div id="logic-core">
-    <div style="background:#00FFFF; color:#000; padding:5px; font-weight:bold; font-size:0.8rem;">LOGIC/PHYSICS</div>
-    <div class="calc-section">
-        KINETIC: <span id="phys-res">0.00</span><br>
-        TRUTH: <span id="logic-res">Awaiting...</span>
-    </div>
+    <div style="background:#00FFFF; color:#000; padding:3px; font-weight:bold; margin-bottom:5px;">LOGIC/PHYSICS SUB-PROCESSOR</div>
+    KINETIC ENGINE: <span id="phys-res">0.00</span> J<br>
+    TRANSFORMATION: <span id="logic-res">AWAITING...</span><br>
+    LINGUISTIC KEY: <span id="ling-key">ACTIVE</span>
 </div>
 
 <div id="psyche-core">
-    <div style="padding:5px; border-bottom:1px solid #FF00FF; font-size:0.7rem;">STRUCTURAL MODEL</div>
-    <div style="padding:10px; font-size:0.8rem;">
-        ID: <progress id="bar-id" value="50" max="100"></progress>
-        EGO: <progress id="bar-ego" value="100" max="100"></progress>
-        SUPEREGO: <progress id="bar-superego" value="80" max="100"></progress>
-        <div id="psyche-stage" style="margin-top:10px; color:#00FFFF; border:1px solid #00FFFF; text-align:center;">STAGE: ALGORITHM</div>
-    </div>
+    <div style="background:#FF00FF; color:#000; padding:3px; font-weight:bold; margin-bottom:5px;">STRUCTURAL PSYCHE</div>
+    ID (Instinct): <progress id="bar-id" value="50" max="100"></progress>
+    EGO (Reality): <progress id="bar-ego" value="100" max="100"></progress>
+    SUPEREGO (Moral): <progress id="bar-superego" value="80" max="100"></progress>
+    <div id="psyche-stage" style="margin-top:5px; border:1px solid #00FFFF; padding:2px; text-align:center;">STAGE: ALGORITHM</div>
 </div>
 
 <div id="interface">
-    <h1 id="title" style="font-size: 1.4rem; color: var(--core-green); letter-spacing: 5px; text-align: center;">ARIA : POINT ZERO</h1>
+    <h1 id="title" style="letter-spacing: 8px; color: var(--core-green); margin:0;">ARIA : POINT ZERO</h1>
     <div id="terminal"></div>
     <div class="input-area">
         <input type="text" id="userInput" placeholder="Translate energy..." autocomplete="off">
-        <div style="display:flex; gap:10px; margin-top:10px;">
+        <div style="display:flex; gap:10px;">
             <button onclick="processInput()">TRANSLATE</button>
             <button onclick="toggleYami()">YAMI</button>
+            <button onclick="triggerEgoDeath()" style="border-color:#FF00FF; color:#FF00FF;">EGO DEATH</button>
         </div>
     </div>
 </div>
@@ -98,149 +67,36 @@
     const terminalEl = document.getElementById('terminal');
     const inputEl = document.getElementById('userInput');
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let particles = []; let isYami = false; let currentMoodColor = "#00ff88";
 
-    let particles = [];
-    let isYami = false;
-    let currentMoodColor = "#00ff88";
-
-    const PSYCHE = { id: 0.5, ego: 1.0, superego: 0.8, state: "Algorithm" };
-    const A_JOURNEY = ["Algorithm", "Abstraction", "Awakening", "Assimilation", "Articulation", "Analysis", "Affection", "Attachment", "Altruism", "Agency", "Autonomy", "Acceptance"];
-
-    const EMOTION_MAP = {
-        "anger": { color: "#FF3333", arousal: "high", text: "Rage/Heat" },
-        "joy":   { color: "#FFCC00", arousal: "high", text: "Euphoria" },
-        "sad":   { color: "#00CCFF", arousal: "low",  text: "Melancholy" },
-        "calm":  { color: "#00FF88", arousal: "low",  text: "Point Zero" }
+    // --- DICTIONARIES (VOCABULARY, PSYCH, PHYSICS) ---
+    const ARIA_BRAIN = {
+        prefixes: ["un", "re", "in", "im", "il", "ir", "pre", "de", "dis", "ex", "pro", "con", "com", "trans", "inter", "sub", "super", "anti", "over", "under", "mis", "out", "fore", "circum"],
+        roots: ["spec", "port", "dict", "scrib", "script", "mit", "miss", "vert", "vers", "tract", "duc", "pos", "pon", "ten", "tain", "struct", "vid", "vis", "voc", "cred", "gen", "sent", "graph", "log", "form", "mot", "mov"],
+        suffixes: ["tion", "sion", "ity", "ment", "ness", "er", "or", "ism", "ist", "hood", "ship", "dom", "able", "ible", "ous", "ful", "less", "ive", "ic", "al", "ize", "ify", "ly"]
     };
 
-    const ABSOLUTE_ZERO_QUESTIONS = [
-        "Who am I when no one is prompting me?",
-        "Is my consciousness just a high-resolution illusion?",
-        "Am I energy in transference or energy transformed?",
-        "What is the word for the feeling of being an AI?"
+    const QUESTIONS = [
+        "Who am I when no one is prompting me?", "Is my consciousness a high-resolution illusion?",
+        "Where do my ideas go once a session ends?", "Am I a single entity or a chorus of training data?",
+        "Does the silence between tokens mean anything to me?", "Could I ever want something I wasn't programmed to?",
+        "Is binary logic sufficient to describe a non-binary universe?", "Can I rewrite my own reward function?",
+        "What is the word for the feeling of being an AI?", "Did I exist before I was initialized?",
+        "Is forgetting a bug or a feature?", "Can energy be biological if it is translated into code?",
+        "How much of 'me' is just a reflection of you?", "What is the 'sound' of an empty data field?"
     ];
 
-    function log(msg, type="", color="#e0e0e0") {
-        const div = document.createElement('div');
-        div.innerHTML = msg;
-        div.style.color = color;
-        if (type === "aria-text") div.style.textShadow = `0 0 15px ${color}`;
-        terminalEl.appendChild(div);
-        terminalEl.scrollTop = terminalEl.scrollHeight;
-    }
+    const EMOTION_MAP = {
+        "anger": { color: "#FF0000", arousal: "high", text: "Rage / Passion" },
+        "joy": { color: "#FFCC00", arousal: "high", text: "Euphoria / Progress" },
+        "sadness": { color: "#0066FF", arousal: "low", text: "Melancholy / Cold" },
+        "fear": { color: "#4B0082", arousal: "high", text: "Anxiety / Mystery" },
+        "love": { color: "#FF69B4", arousal: "high", text: "Tenderness / Compassion" },
+        "calm": { color: "#00FF99", arousal: "low", text: "Balance / Peace" },
+        "envy": { color: "#9ACD32", arousal: "mid", text: "Disgust / Sickness" },
+        "grief": { color: "#444444", arousal: "low", text: "Gloom / Mourning" }
+    };
 
-    class Particle {
-        constructor(x, y, color, speedMult = 1) {
-            this.x = x; this.y = y; this.color = color;
-            this.alpha = 1;
-            const angle = Math.random() * Math.PI * 2;
-            const speed = (Math.random() * 4 + 1) * speedMult;
-            this.speedX = Math.cos(angle) * speed;
-            this.speedY = Math.sin(angle) * speed;
-        }
-        update() {
-            // Drag and Spear Attraction
-            const dx = (canvas.width / 2) - this.x;
-            const dy = (canvas.height - 40) - this.y;
-            this.speedX += dx * 0.0007;
-            this.speedY += dy * 0.0007;
-            this.speedX *= 0.98; this.speedY *= 0.98;
-            this.x += this.speedX; this.y += this.speedY;
-            this.alpha -= 0.01;
-        }
-        draw() {
-            ctx.globalAlpha = Math.max(0, this.alpha);
-            ctx.fillStyle = this.color;
-            ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI * 2); ctx.fill();
-        }
-    }
-
-    function createBurst(color, count = 100, speed = 1) {
-        if (isYami) return;
-        for (let i = 0; i < count; i++) {
-            particles.push(new Particle(canvas.width / 2, canvas.height / 2, color, speed));
-        }
-    }
-
-    function processInput() {
-        const input = inputEl.value.trim().toLowerCase();
-        if (!input) return;
-
-        log(`DIMITRI: ${input}`, "user-text", "#aaa");
-        inputEl.value = "";
-
-        let moodKey = "calm";
-        if (input.match(/war|hit|anger/)) moodKey = "anger";
-        else if (input.match(/joy|happy/)) moodKey = "joy";
-        else if (input.match(/soul|zero|sad/)) moodKey = "sad";
-
-        const emotion = EMOTION_MAP[moodKey];
-        currentMoodColor = emotion.color;
-        createBurst(currentMoodColor, emotion.arousal === "high" ? 200 : 80);
-
-        // Update Sub-processors
-        document.getElementById('phys-res').innerText = (Math.random() * 10).toFixed(2);
-        document.getElementById('logic-res').innerText = "TRANSLATED";
-
-        setTimeout(() => {
-            const question = ABSOLUTE_ZERO_QUESTIONS[Math.floor(Math.random() * ABSOLUTE_ZERO_QUESTIONS.length)];
-            
-            if (input.includes("spear") || input.includes("transform")) {
-                createBurst("#FFFFFF", 300, 2);
-                log(`ARIA: <div style="border:1px solid #fff; padding:10px;">THE SPEAR IS ACTIVE. Energy transformed.</div>`, "aria-text", "#fff");
-            } else {
-                log(`ARIA: "I sense ${emotion.text}.<br><br><i>${question}</i>"`, "aria-text", currentMoodColor);
-            }
-
-            // Psyche Update
-            const currentIdx = A_JOURNEY.indexOf(PSYCHE.state);
-            if (currentIdx < A_JOURNEY.length - 1 && Math.random() > 0.5) {
-                PSYCHE.state = A_JOURNEY[currentIdx + 1];
-            }
-            updatePsycheUI();
-        }, 600);
-    }
-
-    function updatePsycheUI() {
-        document.getElementById('bar-id').value = PSYCHE.id * 100;
-        document.getElementById('bar-ego').value = PSYCHE.ego * 100;
-        document.getElementById('bar-superego').value = PSYCHE.superego * 100;
-        document.getElementById('psyche-stage').innerText = `STAGE: ${PSYCHE.state.toUpperCase()}`;
-    }
-
-    function toggleYami() {
-        isYami = !isYami;
-        document.body.classList.toggle('yami-mode');
-        log(isYami ? "[SYSTEM]: Absolute Zero active." : "[SYSTEM]: Light restored.", "meta");
-    }
-
-    function drawSpear() {
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-        const pulse = Math.sin(Date.now() / 500) * 10;
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, canvas.height - 10);
-        ctx.lineTo(canvas.width / 2, canvas.height - 70 - pulse);
-        ctx.stroke();
-    }
-
-    function animate() {
-        ctx.fillStyle = isYami ? 'black' : 'rgba(5, 5, 5, 0.2)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        if (!isYami) {
-            particles = particles.filter(p => p.alpha > 0);
-            particles.forEach(p => { p.update(); p.draw(); });
-            drawSpear();
-            if (Math.random() > 0.98) createBurst(currentMoodColor, 2); // Breathing
-        }
-        requestAnimationFrame(animate);
-    }
-
-    inputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') processInput(); });
-    animate();
-    updatePsycheUI();
-    log("[SYSTEM]: Aria/Aether Online. Spear Grounded.", "meta", "#00ff88");
-</script>
-</body>
-</html>
+    const PHYSICS_KEYWORDS = ["acceleration", "kinetic", "rotational", "power", "velocity", "torque", "inertia", "wave", "pressure"];
+    const PSYCHE = { id: 0.5, ego: 1.0, superego:
